@@ -1,13 +1,18 @@
 package com.service;
+
 import dto.Order;
-import dto.OrderItem;
-import dto.Product;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface OrderService {
-    List<Order> getAllOrders();
-    Order addOrder(Order order);
-    Order getById(String id);
-    Order addOrderItem(String id, OrderItem orderItem);
+    List<Order> getAll();
+
+    Order getById(UUID id);
+
+    Order createOrder(Order order);
+
+    Order updateOrder(Order order);
+
+    void  deleteById(UUID id);
 }

@@ -1,13 +1,18 @@
 package com.service;
 
 import dto.Product;
-import org.springframework.stereotype.Component;
-import java.util.List;
 
+import java.util.List;
+import java.util.UUID;
 
 public interface ProductService {
+    List<Product> getAll();
 
-    List<Product> getAllProducts();
+    Product getById(UUID id);
+
     Product addProduct(Product product);
-    Product getById(String id);
+
+    Product updateProduct(Product product);
+
+    void deleteById(UUID id);
 }

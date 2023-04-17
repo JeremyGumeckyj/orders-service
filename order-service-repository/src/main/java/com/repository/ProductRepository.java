@@ -1,14 +1,11 @@
 package com.repository;
-import java.util.HashMap;
 
-public class ProductRepository {
-    public ProductRepository(){
-        HashMap<Integer, String> productTest = new HashMap<>();
+import dto.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-        productTest.put(1,"ball");
-        productTest.put(2,"pen");
-        productTest.put(3,"book");
-    }
+import java.util.UUID;
+
+@Repository
+public interface ProductRepository extends JpaRepository<Product,UUID>{
 }
-
-

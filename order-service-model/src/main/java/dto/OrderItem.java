@@ -1,29 +1,50 @@
 package dto;
 
+import org.hibernate.annotations.Type;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.util.UUID;
+
+@Entity
+@Table(name = "OrderItem")
 public class OrderItem {
-    private String id;
+
+    @Id
+    @Column(name = "id")
+    @Type(type="org.hibernate.type.UUIDCharType")
+    private UUID id;
+
+    @Column(name = "quantity")
     private int quantity;
-    private String productId;
-    public OrderItem() {}
-    public OrderItem(String id, int quantity,String productId) {
-        this.productId= productId;
+
+    @Column(name = "productId")
+    private UUID productId;
+
+    public OrderItem() {
+    }
+
+    public OrderItem(UUID id, int quantity, UUID productId) {
         this.id = id;
         this.quantity = quantity;
-    }
-
-    public String getProductId() {
-        return productId;
-    }
-
-    public void setProductId(String productId) {
         this.productId = productId;
     }
 
-    public String getId() {
+    public UUID getProductId() {
+        return productId;
+    }
+
+    public void setProductId(UUID productId) {
+        this.productId = productId;
+    }
+
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
