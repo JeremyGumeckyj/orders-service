@@ -2,10 +2,12 @@ package com.service.impl;
 
 import com.repository.OrderItemRepository;
 import com.repository.ProductRepository;
+import com.repository.OrderRepository;
 import com.service.OrderItemService;
 import com.service.util.exception.NotFoundException;
 import dto.OrderItem;
 import dto.Product;
+import dto.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,20 +16,17 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import java.util.ArrayList;
-
-
 @Service
 public class OrderItemServiceImpl implements OrderItemService {
     private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
-
-    private final List<OrderItem> orderItems = new ArrayList<>();
+    private final OrderRepository orderRepository;
 
     @Autowired
-    public OrderItemServiceImpl(OrderItemRepository orderItemRepository, ProductRepository productRepository) {
+    public OrderItemServiceImpl(OrderItemRepository orderItemRepository, ProductRepository productRepository, OrderRepository orderRepository) {
         this.orderItemRepository = orderItemRepository;
         this.productRepository = productRepository;
+        this.orderRepository = orderRepository;
     }
 
     public List<OrderItem> getAll() {
@@ -42,16 +41,23 @@ public class OrderItemServiceImpl implements OrderItemService {
     public OrderItem addOrderItem(OrderItem orderItem) {
         orderItem.setId(UUID.randomUUID());
         Optional<Product> byId = productRepository.findById(orderItem.getProductId());
-        if (byId.isPresent()){
-            if (orderItem.getQuantity() == 0){
-                orderItem.setQuantity(1);
+        Optional<Order> byOrderId = orderRepository.findById(orderItem.getOrderId());
+
+        if (byId.isPresent()) {
+            if (byOrderId.isPresent()){
+                if(byId.get().isAvailable()){
+                    orderItem.setQuantity(orderItem.getQuantity() > 0 ? orderItem.getQuantity() : 1);
+                    return orderItemRepository.save(orderItem);
+                }
+                else {
+                    throw new NotFoundException("Product is not in stock");
+                }
             }
-            return orderItemRepository.save(orderItem);
+            throw new IllegalArgumentException("Invalid order");
         }
-        else{
-            throw new IllegalArgumentException("Product doesnt exist");
-        }
+        throw new IllegalArgumentException("Invalid product");
     }
+
 
     public OrderItem updateOrderItem(OrderItem orderItem) {
         validateIfOrderItemExists(orderItem.getId());
@@ -72,5 +78,4 @@ public class OrderItemServiceImpl implements OrderItemService {
         orderItemFromDB
                 .orElseThrow(() -> new NotFoundException("OrderItem not found"));
     }
-
 }

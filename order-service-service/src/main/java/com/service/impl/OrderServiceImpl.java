@@ -1,9 +1,11 @@
 package com.service.impl;
 
 import com.repository.OrderRepository;
+import com.repository.UserRepository;
 import com.service.OrderService;
 import com.service.util.exception.NotFoundException;
 import dto.Order;
+import dto.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +17,12 @@ import java.util.UUID;
 @Service
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository) {
+    public OrderServiceImpl(OrderRepository orderRepository, UserRepository userRepository) {
         this.orderRepository = orderRepository;
+        this.userRepository = userRepository;
     }
     public List<Order> getAll() {
         return orderRepository.findAll();
@@ -31,7 +35,13 @@ public class OrderServiceImpl implements OrderService {
 
     public Order createOrder(Order order) {
         order.setId(UUID.randomUUID());
-        return orderRepository.save(order);
+        Optional<User> byId = userRepository.findById(order.getUserId());
+        if(byId.isPresent()){
+            return orderRepository.save(order);
+        }
+        else {
+            throw new IllegalArgumentException("This user is not registered");
+        }
     }
 
     public Order updateOrder(Order order) {

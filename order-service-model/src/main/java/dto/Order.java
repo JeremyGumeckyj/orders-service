@@ -23,17 +23,13 @@ public class Order {
     @Column(name = "userId")
     private UUID userId;
 
-    @Column(name = "orderItemId")
-    private UUID orderItemId;
-
     public Order() {
     }
 
-    public Order(UUID id, String name, UUID userId, UUID orderItemId) {
+    public Order(UUID id, String name, UUID userId) {
         this.id = id;
         this.name = name;
         this.userId = userId;
-        this.orderItemId = orderItemId;
     }
 
     public UUID getId() {
@@ -58,13 +54,5 @@ public class Order {
 
     public void setUserId(UUID userId) {
         this.userId = userId;
-    }
-
-    public UUID getOrderItemId() {
-        return orderItemId;
-    }
-
-    public void setOrderItemId(UUID orderItemId) {
-        this.orderItemId = orderItemId;
     }
 }
