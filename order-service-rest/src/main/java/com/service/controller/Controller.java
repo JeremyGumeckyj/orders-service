@@ -10,5 +10,4 @@ public class Controller {
     public String alive() {
         return "Your project working correctly";
     }
-
 }
