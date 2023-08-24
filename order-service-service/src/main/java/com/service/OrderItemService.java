@@ -15,4 +15,6 @@ public interface OrderItemService {
     OrderItem updateOrderItem(OrderItem orderItem);
 
     void deleteById(UUID id);
+
+    void validateIfOrderItemExists(UUID id);
 }

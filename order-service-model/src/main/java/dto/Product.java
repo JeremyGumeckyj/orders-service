@@ -26,7 +26,7 @@ public class Product {
     @Column(name = "isAvailable")
     private boolean isAvailable;
 
-    protected Product(){
+    public Product(){
     }
 
     public Product(UUID id, String name, double price, boolean isAvailable){

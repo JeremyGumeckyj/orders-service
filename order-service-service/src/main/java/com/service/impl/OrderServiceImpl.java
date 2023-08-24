@@ -3,6 +3,7 @@ package com.service.impl;
 import com.repository.OrderRepository;
 import com.repository.UserRepository;
 import com.service.OrderService;
+import com.service.util.exception.IllegalArgumentException;
 import com.service.util.exception.NotFoundException;
 import dto.Order;
 import dto.User;
@@ -54,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.deleteById(id);
     }
 
-    private void validateIfOrderExists(UUID id) {
+    public void validateIfOrderExists(UUID id) {
         if (Objects.isNull(id)) {
             throw new IllegalArgumentException("Id in Order entity can not be null");
         }

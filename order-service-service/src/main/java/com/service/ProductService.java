@@ -15,4 +15,6 @@ public interface ProductService {
     Product updateProduct(Product product);
 
     void deleteById(UUID id);
+
+    void validateIfProductExists(UUID id);
 }

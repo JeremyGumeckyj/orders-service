@@ -2,13 +2,15 @@ import com.service.OrderService;
 import com.service.impl.OrderServiceImpl;
 import com.repository.OrderRepository;
 import com.repository.UserRepository;
+import com.service.util.exception.IllegalArgumentException;
 import dto.Order;
 import dto.User;
 import com.service.util.exception.NotFoundException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -21,8 +23,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(classes = {OrderService.class, OrderServiceImpl.class, Order.class, OrderRepository.class, UserRepository.class, User.class})
-public class OrderServiceTest {
+@SpringBootTest(classes = {
+        OrderService.class,
+        OrderServiceImpl.class,
+        Order.class,
+        OrderRepository.class,
+        UserRepository.class,
+        User.class})
+@ExtendWith(MockitoExtension.class)
+class OrderServiceTest {
 
     @MockBean
     private OrderRepository orderRepository;
@@ -33,7 +42,6 @@ public class OrderServiceTest {
 
     @BeforeEach
     public void setup() {
-        MockitoAnnotations.openMocks(this);
         orderService = new OrderServiceImpl(orderRepository, userRepository);
     }
 
@@ -41,7 +49,7 @@ public class OrderServiceTest {
     public void testGetAll() {
         List<Order> orders = new ArrayList<>();
         orders.add(new Order(UUID.randomUUID(), "order1", UUID.randomUUID()));
-        orders.add(new Order(UUID.randomUUID(), "order1", UUID.randomUUID()));
+        orders.add(new Order(UUID.randomUUID(), "order2", UUID.randomUUID()));
 
         when(orderRepository.findAll()).thenReturn(orders);
 
@@ -67,14 +75,14 @@ public class OrderServiceTest {
     public void testAddOrder() {
         UUID userId = UUID.randomUUID();
         User user = new User(userId, "user1", "user1@example.com");
-        Order order = new Order(UUID.randomUUID(), "neworder", userId);
+        Order order = new Order(UUID.randomUUID(), "newOrder", userId);
 
         when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(user));
         when(orderRepository.save(order)).thenReturn(order);
 
         Order result = orderService.createOrder(order);
 
-        assertEquals("neworder", result.getName());
+        assertEquals("newOrder", result.getName());
     }
 
     @Test
@@ -105,21 +113,39 @@ public class OrderServiceTest {
         verify(orderRepository, times(1)).deleteById(orderId);
     }
     @Test
-    public void testGetOrderByIdNotFound() {
+    public void shouldGetOrderByIdNotFound() {
         UUID orderId = UUID.randomUUID();
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> orderService.getById(orderId));
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> orderService.getById(orderId));
+        assertEquals("Order not found", notFoundException.getMessage());
     }
 
     @Test
-    public void testCreateOrderInvalidUser() {
+    public void shouldCreateOrderInvalidUser() {
         UUID userId = UUID.randomUUID();
-        Order order = new Order(UUID.randomUUID(), "neworder", userId);
+        Order order = new Order(UUID.randomUUID(), "newOrder", userId);
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> orderService.createOrder(order));
+        IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> orderService.createOrder(order));
+        assertEquals("This user is not registered", illegalArgumentException.getMessage());
+    }
+
+    @Test
+    public void shouldValidateIfOrderExistsWithNullId() {
+        IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> orderService.validateIfOrderExists(null));
+        assertEquals("Id in Order entity can not be null", illegalArgumentException.getMessage());
+    }
+
+    @Test
+    public void shouldValidateIfOrderItemExistsWithNonexistentId() {
+        UUID orderId = UUID.randomUUID();
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> orderService.validateIfOrderExists(orderId));
+        assertEquals("Order not found", notFoundException.getMessage());
     }
 }

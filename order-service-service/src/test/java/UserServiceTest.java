@@ -1,22 +1,32 @@
 import com.service.UserService;
 import com.service.impl.UserServiceImpl;
 import com.repository.UserRepository;
+import com.service.util.exception.IllegalArgumentException;
+import com.service.util.exception.NotFoundException;
 import dto.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(classes = {UserService.class, UserServiceImpl.class, User.class, UserRepository.class})
-public class UserServiceTest {
+@SpringBootTest(classes = {
+        UserService.class,
+        UserServiceImpl.class,
+        User.class,
+        UserRepository.class})
+@ExtendWith(MockitoExtension.class)
+class UserServiceTest {
 
     @MockBean
     private UserRepository userRepository;
@@ -25,7 +35,6 @@ public class UserServiceTest {
 
     @BeforeEach
     public void setup() {
-        MockitoAnnotations.openMocks(this);
         userService = new UserServiceImpl(userRepository);
     }
 
@@ -57,13 +66,13 @@ public class UserServiceTest {
 
     @Test
     public void testCreateUser() {
-        User user = new User(null, "newuser", "newuser@example.com");
+        User user = new User(null, "newUser", "newuser@example.com");
 
         when(userRepository.save(user)).thenReturn(user);
 
         User result = userService.createUser(user);
 
-        assertEquals("newuser", result.getUsername());
+        assertEquals("newUser", result.getUsername());
     }
 
     @Test
@@ -90,5 +99,31 @@ public class UserServiceTest {
         userService.deleteById(userId);
 
         verify(userRepository, times(1)).deleteById(userId);
+    }
+
+    @Test
+    public void testGetProductByIdNotFound() {
+        UUID userId = UUID.randomUUID();
+
+        when(userRepository.findById(userId)).thenReturn(java.util.Optional.empty());
+
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> userService.getById(userId));
+        assertEquals("User not found", notFoundException.getMessage());
+    }
+
+    @Test
+    public void shouldValidateIfOrderExistsWithNullId() {
+        IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> userService.validateIfUserExists(null));
+        assertEquals("Id in User entity can not be null", illegalArgumentException.getMessage());
+    }
+
+    @Test
+    public void shouldValidateIfOrderItemExistsWithNonexistentId() {
+        UUID userId = UUID.randomUUID();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> userService.validateIfUserExists(userId));
+        assertEquals("User not found", notFoundException.getMessage());
     }
 }
