@@ -4,6 +4,7 @@ import com.repository.OrderItemRepository;
 import com.repository.ProductRepository;
 import com.repository.OrderRepository;
 import com.service.OrderItemService;
+import com.service.util.exception.IllegalArgumentException;
 import com.service.util.exception.NotFoundException;
 import dto.OrderItem;
 import dto.Product;
@@ -46,7 +47,8 @@ public class OrderItemServiceImpl implements OrderItemService {
         if (byId.isPresent()) {
             if (byOrderId.isPresent()){
                 if(byId.get().isAvailable()){
-                    orderItem.setQuantity(orderItem.getQuantity() > 0 ? orderItem.getQuantity() : 1);
+                    Integer orderQuantity = orderItem.getQuantity();
+                    orderItem.setQuantity(orderQuantity > 0 ? orderQuantity : 1);
                     return orderItemRepository.save(orderItem);
                 }
                 else {
@@ -69,7 +71,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         orderItemRepository.deleteById(id);
     }
 
-    private void validateIfOrderItemExists(UUID id) {
+    public void validateIfOrderItemExists(UUID id) {
         if (Objects.isNull(id)) {
             throw new IllegalArgumentException("Id in OrderItem entity can not be null");
         }

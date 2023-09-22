@@ -15,4 +15,6 @@ public interface UserService {
     User updateUser(User user);
 
     void deleteById(UUID id);
+
+    void validateIfUserExists(UUID id);
 }

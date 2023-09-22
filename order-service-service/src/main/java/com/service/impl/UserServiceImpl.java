@@ -2,6 +2,7 @@ package com.service.impl;
 
 import com.repository.UserRepository;
 import com.service.UserService;
+import com.service.util.exception.IllegalArgumentException;
 import com.service.util.exception.NotFoundException;
 import dto.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,7 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
-    private void validateIfUserExists(UUID id) {
+    public void validateIfUserExists(UUID id) {
         if (Objects.isNull(id)) {
             throw new IllegalArgumentException("Id in User entity can not be null");
         }

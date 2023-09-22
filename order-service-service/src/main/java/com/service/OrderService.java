@@ -15,4 +15,6 @@ public interface OrderService {
     Order updateOrder(Order order);
 
     void  deleteById(UUID id);
+
+    void validateIfOrderExists(UUID id);
 }

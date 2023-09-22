@@ -2,6 +2,7 @@ package com.service.impl;
 
 import com.repository.ProductRepository;
 import com.service.ProductService;
+import com.service.util.exception.IllegalArgumentException;
 import com.service.util.exception.NotFoundException;
 import dto.Product;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(id);
     }
 
-    private void validateIfProductExists(UUID id) {
+    public void validateIfProductExists(UUID id) {
         if (Objects.isNull(id)) {
             throw new IllegalArgumentException("Id in Product entity can not be null");
         }
