@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -26,14 +27,18 @@ public class OrderItem {
     @Column(name = "orderId")
     private UUID orderId;
 
+    @Column(name = "orderDate")
+    private LocalDate orderDate;
+
     public OrderItem() {
     }
 
-    public OrderItem(UUID id, int quantity, UUID productId, UUID orderId) {
+    public OrderItem(UUID id, int quantity, UUID productId, UUID orderId, LocalDate orderDate) {
         this.id = id;
         this.quantity = quantity;
         this.productId = productId;
         this.orderId = orderId;
+        this.orderDate = orderDate;
     }
 
     public UUID getId() {
@@ -66,5 +71,13 @@ public class OrderItem {
 
     public void setOrderId(UUID orderId) {
         this.orderId = orderId;
+    }
+
+    public LocalDate getOrderDate() {
+        return orderDate;
+    }
+
+    public void setOrderDate(LocalDate orderDate) {
+        this.orderDate = orderDate;
     }
 }
