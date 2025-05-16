@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -54,8 +55,8 @@ class OrderItemServiceTest {
     @Test
     public void testGetAll() {
         List<OrderItem> orderItems = new ArrayList<>();
-        orderItems.add(new OrderItem(UUID.randomUUID(), 2, UUID.randomUUID(), UUID.randomUUID()));
-        orderItems.add(new OrderItem(UUID.randomUUID(), 1, UUID.randomUUID(), UUID.randomUUID()));
+        orderItems.add(new OrderItem(UUID.randomUUID(), 2, UUID.randomUUID(), UUID.randomUUID(), LocalDate.now().minusDays(2)));
+        orderItems.add(new OrderItem(UUID.randomUUID(), 1, UUID.randomUUID(), UUID.randomUUID(), LocalDate.now().minusDays(3)));
 
         when(orderItemRepository.findAll()).thenReturn(orderItems);
 
@@ -67,7 +68,7 @@ class OrderItemServiceTest {
     @Test
     public void testGetById() {
         UUID orderItemId = UUID.randomUUID();
-        OrderItem orderItem = new OrderItem(orderItemId, 1, UUID.randomUUID(), UUID.randomUUID());
+        OrderItem orderItem = new OrderItem(orderItemId, 1, UUID.randomUUID(), UUID.randomUUID(), LocalDate.now().minusDays(2));
 
         when(orderItemRepository.findById(orderItemId)).thenReturn(java.util.Optional.of(orderItem));
 
@@ -83,7 +84,7 @@ class OrderItemServiceTest {
         UUID orderId = UUID.randomUUID();
         Product product = new Product(productId, "product1", 20.00, true);
         Order order = new Order(orderId, "order1", UUID.randomUUID());
-        OrderItem orderItem = new OrderItem(UUID.randomUUID(), 1, productId, orderId);
+        OrderItem orderItem = new OrderItem(UUID.randomUUID(), 1, productId, orderId, LocalDate.now().minusDays(2));
 
         when(productRepository.findById(productId)).thenReturn(java.util.Optional.of(product));
         when(orderRepository.findById(orderId)).thenReturn(java.util.Optional.of(order));
@@ -99,7 +100,7 @@ class OrderItemServiceTest {
         UUID productId = UUID.randomUUID();
         UUID orderId = UUID.randomUUID();
         UUID orderItemId = UUID.randomUUID();
-        OrderItem orderItem = new OrderItem(orderItemId, 1, productId, orderId);
+        OrderItem orderItem = new OrderItem(orderItemId, 1, productId, orderId, LocalDate.now().minusDays(2));
 
         when(orderItemRepository.findById(orderItemId)).thenReturn(java.util.Optional.of(orderItem));
         when(orderItemRepository.save(orderItem)).thenReturn(orderItem);
@@ -114,7 +115,7 @@ class OrderItemServiceTest {
         UUID orderItemId = UUID.randomUUID();
         UUID productId = UUID.randomUUID();
         UUID orderId = UUID.randomUUID();
-        OrderItem orderItem = new OrderItem(orderItemId, 1, productId, orderId);
+        OrderItem orderItem = new OrderItem(orderItemId, 1, productId, orderId, LocalDate.now().minusDays(2));
 
         when(orderItemRepository.findById(orderItemId)).thenReturn(java.util.Optional.of(orderItem));
         doNothing().when(orderItemRepository).deleteById(orderItemId);
@@ -137,7 +138,7 @@ class OrderItemServiceTest {
     @Test
     public void shouldAddOrderItemInvalidProduct() {
         UUID productId = UUID.randomUUID();
-        OrderItem orderItem = new OrderItem(UUID.randomUUID(), 1, productId, UUID.randomUUID());
+        OrderItem orderItem = new OrderItem(UUID.randomUUID(), 1, productId, UUID.randomUUID(), LocalDate.now().minusDays(2));
 
         when(productRepository.findById(productId)).thenReturn(Optional.empty());
 
@@ -149,7 +150,7 @@ class OrderItemServiceTest {
     public void shouldAddOrderItemInvalidOrder() {
         UUID orderId = UUID.randomUUID();
         when(productRepository.findById(any())).thenReturn(Optional.of(new Product()));
-        OrderItem orderItem = new OrderItem(UUID.randomUUID(), 1, UUID.randomUUID(), null);
+        OrderItem orderItem = new OrderItem(UUID.randomUUID(), 1, UUID.randomUUID(), null, LocalDate.now().minusDays(2));
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
@@ -162,7 +163,7 @@ class OrderItemServiceTest {
         UUID productId = UUID.randomUUID();
         when(productRepository.findById(any())).thenReturn(Optional.of(new Product(productId, "product1", 125.00, false)));
         when(orderRepository.findById(any())).thenReturn(Optional.of(new Order()));
-        OrderItem orderItem = new OrderItem(UUID.randomUUID(), 1, UUID.randomUUID(), null);
+        OrderItem orderItem = new OrderItem(UUID.randomUUID(), 1, UUID.randomUUID(), null, LocalDate.now().minusDays(2));
 
         NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> orderItemService.addOrderItem(orderItem));
         assertEquals("Product is not in stock", notFoundException.getMessage());
